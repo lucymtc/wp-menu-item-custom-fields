@@ -13,7 +13,7 @@ Currently supports adding text fields and select dropdows.
 
 An example:
 
-```
+```php
 add_action( 'init', 'setup_menu_custom_fields' );
 function setup_menu_custom_fields() {
 
