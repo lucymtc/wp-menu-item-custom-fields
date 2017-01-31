@@ -24,11 +24,11 @@ class Lucymtc_Menu_Walker_Edit extends Walker_Nav_Menu_Edit {
 		$container = $container->parentNode->removeChild( $container );
 		// Remove all  direct children from the document ( <html>,<head>,<body> ).
 		while ( $dom->firstChild ) {
-    	$dom->removeChild( $dom->firstChild );
+			$dom->removeChild( $dom->firstChild );
 		}
 		// Document clean. Add direct children of the container to the document again.
 		while ($container->firstChild ) {
-    	$dom->appendChild( $container->firstChild );
+			$dom->appendChild( $container->firstChild );
 		}
 
 		$xpath = new \DOMXpath( $dom );
