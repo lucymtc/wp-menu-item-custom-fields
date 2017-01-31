@@ -38,6 +38,6 @@ function setup_menu_custom_fields() {
 		);
 
 		// Menu Management custom fields.
-		new \Lucymtc\Theme\Menu( $fields );
+		new \Lucymtc\Menu( $fields );
 }
 ```

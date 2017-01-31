@@ -12,10 +12,24 @@ class Lucymtc_Menu_Walker_Edit extends Walker_Nav_Menu_Edit {
 
 		parent::start_el( $output, $item, $depth, $args, $id );
 
-		$custom_fields = \Lucymtc\Theme\Menu::$custom_fields;
+		$custom_fields = \Lucymtc\Menu::$custom_fields;
 
 		$dom = new DOMDocument();
-		$dom->loadHTML( mb_convert_encoding( $output, 'HTML-ENTITIES', 'UTF-8' ), LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD );
+
+		// Prevent using LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD as support deppends on Libxml version.
+		// Wrapping the output in a container div.
+		$dom->loadHTML( mb_convert_encoding( '<div>' . $output . '</div>', 'HTML-ENTITIES', 'UTF-8' ) );
+		// Remove this container from the document, DOMElement of it still exists.
+		$container = $dom->getElementsByTagName( 'div' )->item( 0 );
+		$container = $container->parentNode->removeChild( $container );
+		// Remove all  direct children from the document ( <html>,<head>,<body> ).
+		while ( $dom->firstChild ) {
+    	$dom->removeChild( $dom->firstChild );
+		}
+		// Document clean. Add direct children of the container to the document again.
+		while ($container->firstChild ) {
+    	$dom->appendChild( $container->firstChild );
+		}
 
 		$xpath = new \DOMXpath( $dom );
 		$classname = 'menu-item';

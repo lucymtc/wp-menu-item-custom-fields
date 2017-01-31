@@ -1,6 +1,6 @@
 <?php
 
-namespace Lucymtc\Theme;
+namespace Lucymtc;
 
 class Menu {
 
