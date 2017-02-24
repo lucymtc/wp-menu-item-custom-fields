@@ -14,6 +14,9 @@ class Lucymtc_Menu_Walker_Edit extends Walker_Nav_Menu_Edit {
 
 		$custom_fields = \Lucymtc\Menu::$custom_fields;
 
+		// Prevent from displaying warnings about invalid HTML.
+		libxml_use_internal_errors( true );
+
 		$dom = new DOMDocument();
 
 		// Prevent using LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD as support deppends on Libxml version.
@@ -32,6 +35,10 @@ class Lucymtc_Menu_Walker_Edit extends Walker_Nav_Menu_Edit {
 		}
 
 		$xpath = new \DOMXpath( $dom );
+
+		// Clear the errors so they are not kept in memory.
+		libxml_clear_errors();
+
 		$classname = 'menu-item';
 
 		// Get last li element as output will contain all menu elements before the current element.
