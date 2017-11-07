@@ -52,12 +52,9 @@ class Lucymtc_Menu_Walker_Edit extends Walker_Nav_Menu_Edit {
 		// Get the fieldset in the list element.
 		// @todo need to make sure is the correct fieldset by class. No risk now as there is only one.
 		$fieldset = $li->item( 0 )->getElementsByTagName( 'fieldset' );
-		// Get the firs element of the fieldset, in this case it's a span.
-		// @todo get first element independently of the tag.
-		$in_fieldset = $fieldset->item( 0 )->getElementsByTagName( 'span' );
 		// Create an element as a wrapper for the fields.
-		$custom_fields_wrapper = $dom->createElement( 'div' );
-		$custom_fields_wrapper->setAttribute( 'class', 'menu_custom_fields' );
+		$custom_fields_wrapper = $dom->createElement( 'fieldset' );
+		$custom_fields_wrapper->setAttribute( 'class', 'fields-custom description description-wide' );
 
 		foreach ( $custom_fields as $field_key => $field ) {
 
@@ -69,7 +66,6 @@ class Lucymtc_Menu_Walker_Edit extends Walker_Nav_Menu_Edit {
 			}
 
 			$field_wrapper = $dom->createElement( 'p' );
-			$field_wrapper->setAttribute( 'class', 'description-wide' );
 
 			// Create the label and input elements.
 			$label = $dom->createElement( 'label', esc_html( $field['label'] ) );
@@ -82,6 +78,9 @@ class Lucymtc_Menu_Walker_Edit extends Walker_Nav_Menu_Edit {
 			// Set the atrributes.
 			if ( isset( $field['attrs'] ) ) {
 				foreach ( $field['attrs'] as $attr_key => $attr_value ) {
+					if ( $attr_key === 'class' ) {
+						$attr_value = ( ! empty( $attr_value ) ) ? sanitize_html_class( $field_key ) . ' ' . $attr_value : '';
+					}
 					$input->setAttribute( $attr_key, $attr_value );
 				}
 			}
@@ -103,8 +102,8 @@ class Lucymtc_Menu_Walker_Edit extends Walker_Nav_Menu_Edit {
 			$custom_fields_wrapper->appendChild( $field_wrapper );
 		}
 
-		// Intert it at the beginng of the fieldset.
-		$in_fieldset->item( 0 )->parentNode->insertBefore( $custom_fields_wrapper, $in_fieldset->item( 0 ) );
+		// Insert it at the beginng of the fieldset.
+		$fieldset->item( 0 )->parentNode->insertBefore( $custom_fields_wrapper, $fieldset->item( 0 ) );
 
 		$output = $dom->saveHTML();
 
