@@ -104,6 +104,11 @@ class Lucymtc_Menu_Walker_Edit extends Walker_Nav_Menu_Edit {
 
 		// Insert it at the beginng of the fieldset.
 		$fieldset->item( 0 )->parentNode->insertBefore( $custom_fields_wrapper, $fieldset->item( 0 ) );
+		
+		// The Walker_Nav_Menu_Edit parent generates TAB characters in some of the href attributes.  Processing this HTML with DOMDocument has been URL encoding embedded and trailing TAB characters to %09.  The trailing %09 breaks some of the javascript handlers on these links, so remove any TAB characters that are in the links.
+		foreach ($xpath->query('//a/@href') as $url) {
+			$url->value = trim(str_replace("\t", '', $url->value));
+		}
 
 		$output = $dom->saveHTML();
 
