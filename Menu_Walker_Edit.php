@@ -21,7 +21,7 @@ class Lucymtc_Menu_Walker_Edit extends Walker_Nav_Menu_Edit {
 
 		// Prevent using LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD as support deppends on Libxml version.
 		// Wrapping the output in a container div.
-		$dom->loadHTML( mb_convert_encoding( '<div>' . $output . '</div>', 'HTML-ENTITIES', 'UTF-8' ) );
+		$dom->loadHTML( mb_convert_encoding( '<div>' . $output . '</div>', 'HTML-ENTITIES', 'UTF-8' ), LIBXML_NONET );
 		// Remove this container from the document, DOMElement of it still exists.
 		$container = $dom->getElementsByTagName( 'div' )->item( 0 );
 		$container = $container->parentNode->removeChild( $container );
