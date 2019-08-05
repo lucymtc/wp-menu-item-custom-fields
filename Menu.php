@@ -35,6 +35,17 @@ class Menu {
 	 *  @var array
 	 */
 	public static $custom_fields = array();
+	
+	/**
+	 * Maximum depth in menu to add custom fields.
+	 *
+	 * Zero-based, so 0 will add custom fields to the
+	 * top menu items only while 1 will add them to the
+	 * top 2 levels of the hierarchy.
+	 *
+	 *  @var integer
+	 */
+	public static $max_depth = \PHP_INT_MAX;
 
 	/**
 	 * Menu Management, sets navigation items custom options.
@@ -42,12 +53,21 @@ class Menu {
 	 * @since 0.1.0
 	 *
 	 * @uses add_action()
+	 * @uses add_filter()
+	 *
+	 * @param array $custom_fields Specifies the custom fields to be added.
+	 *
+	 * @param mixed $max_depth Specifies the zero-based depth in the menu to which custom fields will be added.  Non-numeric values for this parameter specify that custom fields should be added to all menu items.
 	 *
 	 * @return void
 	 */
-	function __construct( $custom_fields ) {
+	function __construct( $custom_fields, $max_depth = null ) {
 
 		self::$custom_fields = $custom_fields;
+		
+		self::$max_depth = is_numeric( $max_depth )
+			? intval( $max_depth )
+			: \PHP_INT_MAX;
 
 		add_filter( 'wp_edit_nav_menu_walker', array( $this, 'edit_nav_menu_walker' ) );
 		add_action( 'wp_update_nav_menu_item', array( $this, 'update_nav_menu_item' ), 10, 3 );

@@ -11,6 +11,10 @@ class Lucymtc_Menu_Walker_Edit extends Walker_Nav_Menu_Edit {
 	function start_el( &$output, $item, $depth = 0, $args = array(), $id = 0 ) {
 
 		parent::start_el( $output, $item, $depth, $args, $id );
+		
+		if ( $depth > \Lucymtc\Menu::$max_depth ) {
+			return;
+		}
 
 		$custom_fields = \Lucymtc\Menu::$custom_fields;
 
