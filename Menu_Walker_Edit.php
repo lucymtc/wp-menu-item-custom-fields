@@ -11,6 +11,10 @@ class Lucymtc_Menu_Walker_Edit extends Walker_Nav_Menu_Edit {
 	function start_el( &$output, $item, $depth = 0, $args = array(), $id = 0 ) {
 
 		parent::start_el( $output, $item, $depth, $args, $id );
+		
+		if ( $depth > \Lucymtc\Menu::$max_depth ) {
+			return;
+		}
 
 		$custom_fields = \Lucymtc\Menu::$custom_fields;
 
@@ -21,7 +25,7 @@ class Lucymtc_Menu_Walker_Edit extends Walker_Nav_Menu_Edit {
 
 		// Prevent using LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD as support deppends on Libxml version.
 		// Wrapping the output in a container div.
-		$dom->loadHTML( mb_convert_encoding( '<div>' . $output . '</div>', 'HTML-ENTITIES', 'UTF-8' ) );
+		$dom->loadHTML( mb_convert_encoding( '<div>' . $output . '</div>', 'HTML-ENTITIES', 'UTF-8' ), LIBXML_NONET );
 		// Remove this container from the document, DOMElement of it still exists.
 		$container = $dom->getElementsByTagName( 'div' )->item( 0 );
 		$container = $container->parentNode->removeChild( $container );
@@ -52,12 +56,9 @@ class Lucymtc_Menu_Walker_Edit extends Walker_Nav_Menu_Edit {
 		// Get the fieldset in the list element.
 		// @todo need to make sure is the correct fieldset by class. No risk now as there is only one.
 		$fieldset = $li->item( 0 )->getElementsByTagName( 'fieldset' );
-		// Get the firs element of the fieldset, in this case it's a span.
-		// @todo get first element independently of the tag.
-		$in_fieldset = $fieldset->item( 0 )->getElementsByTagName( 'span' );
 		// Create an element as a wrapper for the fields.
-		$custom_fields_wrapper = $dom->createElement( 'div' );
-		$custom_fields_wrapper->setAttribute( 'class', 'menu_custom_fields' );
+		$custom_fields_wrapper = $dom->createElement( 'fieldset' );
+		$custom_fields_wrapper->setAttribute( 'class', 'fields-custom description description-wide' );
 
 		foreach ( $custom_fields as $field_key => $field ) {
 
@@ -69,7 +70,6 @@ class Lucymtc_Menu_Walker_Edit extends Walker_Nav_Menu_Edit {
 			}
 
 			$field_wrapper = $dom->createElement( 'p' );
-			$field_wrapper->setAttribute( 'class', 'description-wide' );
 
 			// Create the label and input elements.
 			$label = $dom->createElement( 'label', esc_html( $field['label'] ) );
@@ -82,6 +82,9 @@ class Lucymtc_Menu_Walker_Edit extends Walker_Nav_Menu_Edit {
 			// Set the atrributes.
 			if ( isset( $field['attrs'] ) ) {
 				foreach ( $field['attrs'] as $attr_key => $attr_value ) {
+					if ( $attr_key === 'class' ) {
+						$attr_value = ( ! empty( $attr_value ) ) ? sanitize_html_class( $field_key ) . ' ' . $attr_value : '';
+					}
 					$input->setAttribute( $attr_key, $attr_value );
 				}
 			}
@@ -103,8 +106,13 @@ class Lucymtc_Menu_Walker_Edit extends Walker_Nav_Menu_Edit {
 			$custom_fields_wrapper->appendChild( $field_wrapper );
 		}
 
-		// Intert it at the beginng of the fieldset.
-		$in_fieldset->item( 0 )->parentNode->insertBefore( $custom_fields_wrapper, $in_fieldset->item( 0 ) );
+		// Insert it at the beginng of the fieldset.
+		$fieldset->item( 0 )->parentNode->insertBefore( $custom_fields_wrapper, $fieldset->item( 0 ) );
+		
+		// The Walker_Nav_Menu_Edit parent generates TAB characters in some of the href attributes.  Processing this HTML with DOMDocument has been URL encoding embedded and trailing TAB characters to %09.  The trailing %09 breaks some of the javascript handlers on these links, so remove any TAB characters that are in the links.
+		foreach ($xpath->query('//a/@href') as $url) {
+			$url->value = trim(str_replace("\t", '', $url->value));
+		}
 
 		$output = $dom->saveHTML();
 
